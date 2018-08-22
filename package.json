@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "DISPLAY=:0 chromium-browser -kiosk http://localhost:3000 & node app.js"
   },
   "repository": {
     "type": "git",

@@ -33,7 +33,7 @@ git clone or copy over ssh to pi zero using scp:
 
 On the raspberry pi (over ssh, preferably), run in project folder:
 
-`DISPLAY=:0 chromium-browser -kiosk http://localhost:3000 & node app.js`
+`npm start`
 
 ---
 
