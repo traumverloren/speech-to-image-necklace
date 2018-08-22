@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
   speechToggle.addEventListener("change", () => {
     if (speechToggle.checked) {
       console.log("Speech Recognition ON");
-      updateImage();
+      startSpeechRecognition();
+      // updateImage();
     } else {
       console.log("zzZzZZZz");
       stopUpdateImage();
@@ -19,6 +20,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   const updateImage = () => {
     currentInterval = setInterval(fetchImage, 3000);
+  };
+
+  const startSpeechRecognition = () => {
+    fetch("/speak")
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(response) {
+        let data = response.data;
+        currentImage.innerHTML = data;
+      });
   };
 
   const fetchImage = () => {

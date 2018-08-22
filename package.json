@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/traumverloren/thijs-vision#readme",
   "dependencies": {
+    "@google-cloud/speech": "^2.0.0",
     "ejs": "^2.6.1",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "node-record-lpcm16": "^0.3.1"
   }
 }

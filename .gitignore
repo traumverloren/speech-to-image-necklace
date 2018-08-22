@@ -9,5 +9,5 @@ node_modules/
 # Optional npm cache directory
 .npm
 
-# dotenv environment variables file
-.env
+# environment variables file
+*.json
