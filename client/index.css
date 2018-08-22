@@ -14,7 +14,7 @@ body {
 
 main {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   grid-gap: 1rem;
   width: 100vw;
   height: 100vh;
@@ -22,22 +22,11 @@ main {
   align-content: start;
 }
 
-.speech-toggle {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+#current-image {
   margin: 0.5rem;
 }
-
-.speech-toggle p {
-  font-size: 1.4rem;
-}
-
-footer {
-  margin-bottom: 1rem;
-}
 .onoffswitch {
-  margin-left: 1rem;
+  margin-bottom: 0.5rem;
   position: relative;
   width: 90px;
   -webkit-user-select: none;
