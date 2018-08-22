@@ -1,15 +1,27 @@
 document.addEventListener("DOMContentLoaded", function(event) {
   const speechToggle = document.getElementById("myonoffswitch");
   const currentImage = document.getElementById("current-image");
+  let currentInterval;
+
   speechToggle.addEventListener("change", () => {
-    if (this.checked) {
+    if (speechToggle.checked) {
       console.log("Speech Recognition ON");
+      updateImage();
     } else {
       console.log("zzZzZZZz");
+      stopUpdateImage();
     }
   });
 
-  setInterval(() => {
+  const stopUpdateImage = () => {
+    clearInterval(currentInterval);
+  };
+
+  const updateImage = () => {
+    currentInterval = setInterval(fetchImage, 3000);
+  };
+
+  const fetchImage = () => {
     fetch("/image")
       .then(function(response) {
         return response.json();
@@ -18,5 +30,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
         let data = response.data;
         currentImage.innerHTML = data;
       });
-  }, 3000);
+  };
 });
