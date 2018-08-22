@@ -1,7 +1,17 @@
-var express = require("express");
-var serveStatic = require("serve-static");
+const express = require("express");
+const app = express();
 
-var app = express();
+app.set("view engine", "ejs");
 
-app.use(serveStatic("client", { index: ["index.html"] }));
+app.get("/", function(req, res) {
+  res.render("index");
+});
+
+app.use(express.static("public"));
+
 app.listen(3000);
+
+app.get("/image", function(req, res) {
+  let data = "hiiiiii" + Math.floor(Math.random() * 100);
+  res.send({ data });
+});
