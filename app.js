@@ -13,9 +13,13 @@ app.get("/image", function(req, res) {
 });
 
 app.get("/speak", function(req, res) {
-  const recognizeStream = client;
-  recognizeSpeech();
-  // res.send({ data });
+  startSpeechRecording();
+  res.send({ data: "Started the recording, yo" });
+});
+
+app.post("/speak", function(req, res) {
+  stopSpeechRecording();
+  res.send({ data: "Stopped the recording, yo" });
 });
 
 // Imports the Google Cloud client library
@@ -51,18 +55,22 @@ const recognizeStream = client
     )
   );
 
-function recognizeSpeech() {
+const stopSpeechRecording = () => {
+  record.stop();
+};
+
+const startSpeechRecording = () => {
   // Start recording and send the microphone input to the Speech API
   record
     .start({
       sampleRateHertz,
       threshold: 0,
-      verbose: false,
+      verbose: true,
       recordProgram: "rec", // Try also "arecord" or "sox"
-      silence: "10.0"
+      silence: "1000.0"
     })
     .on("error", console.error)
     .pipe(recognizeStream);
 
   console.log("Listening, press Ctrl+C to stop.");
-}
+};
