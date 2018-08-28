@@ -24,7 +24,7 @@ app.get("/speak", function(req, res) {
 });
 
 app.post("/speak", function(req, res) {
-  stopSpeechRecording();
+  // stopSpeechRecording();
   res.send({ data: "Stopped the recording, yo" });
 });
 
@@ -49,20 +49,50 @@ const speechRequest = {
   interimResults: true // If you want interim results, set this to true
 };
 
+const wordsToAvoid = [
+  "",
+  "it",
+  "he",
+  "she",
+  "is",
+  "was",
+  "did",
+  "do",
+  "does",
+  "done",
+  "has",
+  "have",
+  "the",
+  "a",
+  "an",
+  "of",
+  "on",
+  "at",
+  "with",
+  "up",
+  "down",
+  "left",
+  "right"
+];
+
 // Create a recognize stream
 const recognizeStream = client
   .streamingRecognize(speechRequest)
   .on("error", console.error)
-  .on("data", data =>
-    process.stdout.write(
+  .on("data", data => {
+    const sentence =
       data.results[0] && data.results[0].alternatives[0]
-        ? `Transcription: ${data.results[0].alternatives[0].transcript}\n`
-        : `\n\nReached transcription time limit, press Ctrl+C\n`
-    )
-  );
+        ? data.results[0].alternatives[0].transcript
+        : "";
+    const words = sentence
+      .split(" ")
+      .filter(word => !wordsToAvoid.includes(word));
+    console.log(words);
+  });
 
 const stopSpeechRecording = () => {
   record.stop();
+  console.log("Stopped");
 };
 
 const startSpeechRecording = () => {

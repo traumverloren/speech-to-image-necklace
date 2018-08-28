@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   const deactivateSpeech = () => {
     console.log("zzZzZZZz");
-    // stopSpeechRecognition();
+    stopSpeechRecognition();
     stopUpdateImage();
   };
 
