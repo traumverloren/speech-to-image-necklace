@@ -11,3 +11,4 @@ node_modules/
 
 # environment variables file
 thijs-vision-keys.json
+keys.js

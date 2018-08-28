@@ -1,7 +1,13 @@
 process.env.GOOGLE_APPLICATION_CREDENTIALS = "thijs-vision-keys.json";
 
+var keys = require("./keys.js");
+
 const express = require("express");
 const app = express();
+
+// for making external REST api calls
+const request = require("request");
+const rp = require("request-promise");
 
 app.use(express.static("client"));
 
@@ -34,7 +40,7 @@ const encoding = "LINEAR16";
 const sampleRateHertz = 16000;
 const languageCode = "en-US";
 
-const request = {
+const speechRequest = {
   config: {
     encoding,
     sampleRateHertz,
@@ -45,7 +51,7 @@ const request = {
 
 // Create a recognize stream
 const recognizeStream = client
-  .streamingRecognize(request)
+  .streamingRecognize(speechRequest)
   .on("error", console.error)
   .on("data", data =>
     process.stdout.write(
@@ -65,7 +71,7 @@ const startSpeechRecording = () => {
     .start({
       sampleRateHertz,
       threshold: 0,
-      verbose: true,
+      verbose: false,
       recordProgram: "rec", // Try also "arecord" or "sox"
       silence: "1000.0"
     })
@@ -73,4 +79,28 @@ const startSpeechRecording = () => {
     .pipe(recognizeStream);
 
   console.log("Listening, press Ctrl+C to stop.");
+};
+
+const findImage = () => {
+  query = "coding";
+  const searchOptions = {
+    uri: "https://www.googleapis.com/customsearch/v1",
+    qs: {
+      key: keys.SEARCH_API_KEY,
+      cx: keys.SEARCH_ID,
+      q: query,
+      num: 1,
+      safe: "active",
+      imgSize: "large",
+      searchType: "image" // -> uri + '?key=xxxxx%20xxxxx&cx=123&imgSize=large&num=1&safe=active&searchType=image'
+    },
+    headers: {
+      "User-Agent": "Request-Promise"
+    },
+    json: true // Automatically parses the JSON string in the response
+  };
+
+  rp(searchOptions).then(function(results) {
+    console.log(results);
+  });
 };
