@@ -2,7 +2,7 @@
 
 See images that maybe (?probably not?) correlate with what you are saying as you are saying it.
 
-This project uses a Raspberry Pi Zero W, microphone, hyperpixel display, google cloud speech recognition API, & google custom search API. Written in Javascript!
+This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, microphone, hyperpixel4 display, google cloud speech recognition API, & google custom search API. Written in Javascript!
 
 ## Setup:
 
@@ -20,7 +20,7 @@ This project uses a Raspberry Pi Zero W, microphone, hyperpixel display, google 
    npm -v
    ```
 
-   😠 if `uname -m` said `arm6`, i'm really sorry, you have to install node the following way and the app is probably not gonna work... :
+   😠 if `uname -m` said `arm6` (cuz you are using a Pi Zero W), i'm really sorry, you have to install node the following way and the app is probably not gonna work... :
 
    ```
    wget https://nodejs.org/dist/v8.11.4/node-v8.11.4.tar.gz
@@ -35,19 +35,19 @@ This project uses a Raspberry Pi Zero W, microphone, hyperpixel display, google 
 
 3. git clone or copy over ssh to pi zero using scp:
 
-`git clone https://github.com/traumverloren/thijs-vision.git`
+   `git clone https://github.com/traumverloren/thijs-vision.git`
 
-OR
+   OR
 
-`scp -r thijs-vision pi@YOUR_PI_NAME_HERE.local:projects`
+   `scp -r thijs-vision pi@YOUR_PI_NAME_HERE.local:projects`
 
 4. install npm dependencies & SoX:
 
-```
-cd thijs-vision
-sudo apt-get install sox libsox-fmt-all
-npm install
-```
+   ```
+   cd thijs-vision
+   sudo apt-get install sox libsox-fmt-all
+   npm install
+   ```
 
 ## Running:
 
