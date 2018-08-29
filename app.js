@@ -24,7 +24,7 @@ app.get("/speak", function(req, res) {
 });
 
 app.post("/speak", function(req, res) {
-  // stopSpeechRecording();
+  stopSpeechRecording();
   res.send({ data: "Stopped the recording, yo" });
 });
 
@@ -75,24 +75,10 @@ const wordsToAvoid = [
   "right"
 ];
 
-// Create a recognize stream
-const recognizeStream = client
-  .streamingRecognize(speechRequest)
-  .on("error", console.error)
-  .on("data", data => {
-    const sentence =
-      data.results[0] && data.results[0].alternatives[0]
-        ? data.results[0].alternatives[0].transcript
-        : "";
-    const words = sentence
-      .split(" ")
-      .filter(word => !wordsToAvoid.includes(word));
-    console.log(words);
-  });
-
 const stopSpeechRecording = () => {
+  client.streamingRecognize(speechRequest).end();
   record.stop();
-  console.log("Stopped");
+  console.log("Stopped stream");
 };
 
 const startSpeechRecording = () => {
@@ -106,7 +92,25 @@ const startSpeechRecording = () => {
       silence: "1000.0"
     })
     .on("error", console.error)
-    .pipe(recognizeStream);
+    .pipe(
+      // if stop/restart, can't write to an ended stream!
+      // must create new stream each time.
+      // https://stackoverflow.com/questions/43968494/node-stream-get-write-after-end-error
+
+      client
+        .streamingRecognize(speechRequest)
+        .on("error", console.error)
+        .on("data", data => {
+          const sentence =
+            data.results[0] && data.results[0].alternatives[0]
+              ? data.results[0].alternatives[0].transcript
+              : "";
+          const words = sentence
+            .split(" ")
+            .filter(word => !wordsToAvoid.includes(word));
+          console.log(words);
+        })
+    );
 
   console.log("Listening, press Ctrl+C to stop.");
 };
