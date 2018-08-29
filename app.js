@@ -1,14 +1,13 @@
 process.env.GOOGLE_APPLICATION_CREDENTIALS = "thijs-vision-keys.json";
+const keys = require("./keys.js");
 
-var keys = require("./keys.js");
-
-const express = require("express");
-const app = express();
-
-// for making external REST api calls
+// for making external REST api calls for custom search
 const request = require("request");
 const rp = require("request-promise");
 
+// ----- Express Stuff -----
+const express = require("express");
+const app = express();
 app.use(express.static("client"));
 
 app.listen(3000);
@@ -28,7 +27,31 @@ app.post("/speak", function(req, res) {
   res.send({ data: "Stopped the recording, yo" });
 });
 
-// Imports the Google Cloud client library
+// ----- Google Image Search Stuff -----
+const findImage = () => {
+  const searchOptions = {
+    uri: "https://www.googleapis.com/customsearch/v1",
+    qs: {
+      key: keys.SEARCH_API_KEY,
+      cx: keys.SEARCH_ID,
+      q: currentWord,
+      num: 1,
+      safe: "active",
+      imgSize: "large",
+      searchType: "image" // -> uri + '?key=xxxxx%20xxxxx&cx=123&imgSize=large&num=1&safe=active&searchType=image'
+    },
+    headers: {
+      "User-Agent": "Request-Promise"
+    },
+    json: true // Automatically parses the JSON string in the response
+  };
+
+  rp(searchOptions).then(function(results) {
+    console.log(results);
+  });
+};
+
+// ----- Speech to text stuff -----
 const speech = require("@google-cloud/speech");
 const fs = require("fs");
 
@@ -51,6 +74,12 @@ const speechRequest = {
 
 const wordsToAvoid = [
   "",
+  "can",
+  "could",
+  "would",
+  "will",
+  "wants",
+  "want",
   "it",
   "he",
   "she",
@@ -75,7 +104,23 @@ const wordsToAvoid = [
   "right"
 ];
 
+let currentWord = "";
+let currentInterval;
+
+const processText = data => {
+  const sentence =
+    data.results[0] && data.results[0].alternatives[0]
+      ? data.results[0].alternatives[0].transcript
+      : "";
+  const words = sentence
+    .split(" ")
+    .filter(word => !wordsToAvoid.includes(word));
+  currentWord = words[Math.floor(Math.random() * words.length)];
+  console.log(currentWord);
+};
+
 const stopSpeechRecording = () => {
+  clearInterval(currentInterval);
   client.streamingRecognize(speechRequest).end();
   record.stop();
   console.log("Stopped stream");
@@ -96,45 +141,12 @@ const startSpeechRecording = () => {
       // if stop/restart, can't write to an ended stream!
       // must create new stream each time.
       // https://stackoverflow.com/questions/43968494/node-stream-get-write-after-end-error
-
       client
         .streamingRecognize(speechRequest)
         .on("error", console.error)
-        .on("data", data => {
-          const sentence =
-            data.results[0] && data.results[0].alternatives[0]
-              ? data.results[0].alternatives[0].transcript
-              : "";
-          const words = sentence
-            .split(" ")
-            .filter(word => !wordsToAvoid.includes(word));
-          console.log(words);
-        })
+        .on("data", processText)
     );
-
   console.log("Listening, press Ctrl+C to stop.");
-};
 
-const findImage = () => {
-  query = "coding";
-  const searchOptions = {
-    uri: "https://www.googleapis.com/customsearch/v1",
-    qs: {
-      key: keys.SEARCH_API_KEY,
-      cx: keys.SEARCH_ID,
-      q: query,
-      num: 1,
-      safe: "active",
-      imgSize: "large",
-      searchType: "image" // -> uri + '?key=xxxxx%20xxxxx&cx=123&imgSize=large&num=1&safe=active&searchType=image'
-    },
-    headers: {
-      "User-Agent": "Request-Promise"
-    },
-    json: true // Automatically parses the JSON string in the response
-  };
-
-  rp(searchOptions).then(function(results) {
-    console.log(results);
-  });
+  currentInterval = setInterval(findImage, 5000);
 };
