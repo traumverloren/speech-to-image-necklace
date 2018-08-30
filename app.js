@@ -10,13 +10,38 @@ wss.on("connection", function connection(ws) {
     console.log("received: %s", message);
 
     if (message === "startSpeechRecognition") {
+      ws.send(currentImageURL);
       startSpeechRecording();
-      ws.send("Started the recording, yo");
+      currentInterval = setInterval(() => {
+        if (currentWord != nextWord) {
+          currentWord = nextWord;
+          findImage(currentWord);
+        }
+        try {
+          if (ws.readyState != WebSocket.CLOSED) {
+            ws.send(currentImageURL);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        console.log(currentImageURL);
+      }, 3000);
     }
 
     if (message === "stopSpeechRecognition") {
       stopSpeechRecording();
-      ws.send("Stopped the recording, yo");
+      currentImageURL =
+        "https://st2.depositphotos.com/2495409/12280/i/950/depositphotos_122801838-stock-photo-start-button-concept-illustration.jpg";
+
+      try {
+        if (ws.readyState != WebSocket.CLOSED) {
+          ws.send(currentImageURL);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+      clearInterval(currentInterval);
     }
   });
 });
@@ -34,18 +59,17 @@ app.listen(3000);
 
 // ----- Google Image Search Stuff -----
 let currentImageURL =
-  "https://i.kym-cdn.com/entries/icons/mobile/000/018/012/this_is_fine.jpg";
+  "https://upload.wikimedia.org/wikipedia/commons/1/1e/A_blank_black_picture.jpg";
 
-const findImage = () => {
+const findImage = query => {
   const searchOptions = {
     uri: "https://www.googleapis.com/customsearch/v1",
     qs: {
       key: keys.SEARCH_API_KEY,
       cx: keys.SEARCH_ID,
-      q: currentWord,
-      num: 1,
+      q: query,
+      num: 10,
       safe: "active",
-      imgSize: "large",
       searchType: "image" // -> uri + '?key=xxxxx%20xxxxx&cx=123&imgSize=large&num=1&safe=active&searchType=image'
     },
     headers: {
@@ -55,9 +79,9 @@ const findImage = () => {
   };
 
   rp(searchOptions).then(function(results) {
-    console.log(currentImageURL);
-    if (results && results.items && results.items[0].link) {
-      return results.items[0].link;
+    if (results && results.items) {
+      console.log(results.items);
+      currentImageURL = results.items[0].link;
     }
   });
 };
@@ -85,6 +109,7 @@ const speechRequest = {
 
 const wordsToAvoid = [
   "",
+  "for",
   "can",
   "could",
   "would",
@@ -107,15 +132,24 @@ const wordsToAvoid = [
   "an",
   "of",
   "on",
+  "to",
+  "and",
+  "however",
+  "when",
+  "whenever",
   "at",
   "with",
   "up",
   "down",
   "left",
-  "right"
+  "right",
+  "are",
+  "you",
+  "i"
 ];
 
 let currentWord = "";
+let nextWord = "";
 let currentInterval;
 
 const processText = data => {
@@ -125,16 +159,17 @@ const processText = data => {
       : "";
   const words = sentence
     .split(" ")
-    .filter(word => !wordsToAvoid.includes(word));
-  currentWord = words[Math.floor(Math.random() * words.length)];
-  console.log(currentWord);
+    .filter(word => !wordsToAvoid.includes(word.toLowerCase()));
+  nextWord =
+    words.length > 0
+      ? words[Math.floor(Math.random() * words.length)]
+      : "say something";
 };
 
 const stopSpeechRecording = () => {
-  clearInterval(currentInterval);
   client.streamingRecognize(speechRequest).end();
   record.stop();
-  console.log("Stopped stream");
+  console.log("Stopped recording");
 };
 
 const startSpeechRecording = () => {
@@ -158,6 +193,4 @@ const startSpeechRecording = () => {
         .on("data", processText)
     );
   console.log("Listening, press Ctrl+C to stop.");
-
-  currentInterval = setInterval(findImage, 5000);
 };

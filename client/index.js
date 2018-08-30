@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   // event emmited when receiving message
   ws.onmessage = function(ev) {
     console.log(ev);
+    document.getElementById("current-image").src = ev.data;
   };
 
   touchscreen.addEventListener("click", () => {
