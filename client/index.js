@@ -4,13 +4,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
   let speechActivated = false;
   let currentInterval;
 
+  const ws = new WebSocket("ws://localhost:40510");
+  // event emmited when connected
+  ws.onopen = function() {
+    console.log("websocket is connected ...");
+    // sending a send event to websocket server
+    ws.send("client is connected");
+  };
+  // event emmited when receiving message
+  ws.onmessage = function(ev) {
+    console.log(ev);
+  };
+
   touchscreen.addEventListener("click", () => {
     {
       !speechActivated ? activateSpeech() : deactivateSpeech();
     }
     speechActivated = !speechActivated;
   });
-
   const activateSpeech = () => {
     console.log("Speech Recognition ON");
     startSpeechRecognition();
@@ -27,50 +38,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
     currentImage.innerHTML = "STOPPED!";
     touchscreen.classList.add("-redBorder");
     touchscreen.classList.remove("-greenBorder");
-
-    fetch("/speak", {
-      method: "POST"
-    })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(response) {
-        let data = response.data;
-        console.log(data);
-      });
+    ws.send("stopSpeechRecognition");
   };
+
   const startSpeechRecognition = () => {
     touchscreen.classList.add("-greenBorder");
     touchscreen.classList.remove("-redBorder");
 
     currentImage.innerHTML = "STARTED";
-
-    fetch("/speak")
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(response) {
-        let data = response.data;
-        console.log(data);
-      });
+    ws.send("startSpeechRecognition");
   };
 
   const startUpdateImage = () => {
-    currentInterval = setInterval(fetchImage, 3000);
+    // currentInterval = setInterval(fetchImage, 3000);
   };
 
   const stopUpdateImage = () => {
     clearInterval(currentInterval);
-  };
-
-  const fetchImage = () => {
-    fetch("/image")
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(response) {
-        let data = response.data;
-        currentImage.innerHTML = data;
-      });
   };
 });

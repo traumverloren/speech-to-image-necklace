@@ -1,6 +1,26 @@
 process.env.GOOGLE_APPLICATION_CREDENTIALS = "thijs-vision-keys.json";
 const keys = require("./keys.js");
 
+// websockets, why not?
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ port: 40510 });
+
+wss.on("connection", function connection(ws) {
+  ws.on("message", function incoming(message) {
+    console.log("received: %s", message);
+
+    if (message === "startSpeechRecognition") {
+      startSpeechRecording();
+      ws.send("Started the recording, yo");
+    }
+
+    if (message === "stopSpeechRecognition") {
+      stopSpeechRecording();
+      ws.send("Stopped the recording, yo");
+    }
+  });
+});
+
 // for making external REST api calls for custom search
 const request = require("request");
 const rp = require("request-promise");
@@ -12,22 +32,10 @@ app.use(express.static("client"));
 
 app.listen(3000);
 
-app.get("/image", function(req, res) {
-  let data = "hiiiiii" + Math.floor(Math.random() * 100);
-  res.send({ data });
-});
-
-app.get("/speak", function(req, res) {
-  startSpeechRecording();
-  res.send({ data: "Started the recording, yo" });
-});
-
-app.post("/speak", function(req, res) {
-  stopSpeechRecording();
-  res.send({ data: "Stopped the recording, yo" });
-});
-
 // ----- Google Image Search Stuff -----
+let currentImageURL =
+  "https://i.kym-cdn.com/entries/icons/mobile/000/018/012/this_is_fine.jpg";
+
 const findImage = () => {
   const searchOptions = {
     uri: "https://www.googleapis.com/customsearch/v1",
@@ -47,7 +55,10 @@ const findImage = () => {
   };
 
   rp(searchOptions).then(function(results) {
-    console.log(results);
+    console.log(currentImageURL);
+    if (results && results.items && results.items[0].link) {
+      return results.items[0].link;
+    }
   });
 };
 
