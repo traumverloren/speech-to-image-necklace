@@ -1,7 +1,21 @@
 process.env.GOOGLE_APPLICATION_CREDENTIALS = "thijs-vision-keys.json";
 const keys = require("./keys.js");
+const wordsToAvoid = require("./wordsToAvoid.js");
+const validImageFormats = [".jpg", ".jpeg", ".png", ".gif"];
+let currentImageURL;
 
-// websockets, why not?
+// for making external REST api calls for custom search
+const request = require("request");
+const rp = require("request-promise");
+
+// ----- Express Stuff -----
+const express = require("express");
+const app = express();
+app.use(express.static("client"));
+
+app.listen(3000);
+
+// websockets, cuz why not?
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 40510 });
 
@@ -10,15 +24,22 @@ wss.on("connection", function connection(ws) {
     console.log("received: %s", message);
 
     if (message === "startSpeechRecognition") {
+      currentImageURL = "https://i.ytimg.com/vi/p1RS97kQpKY/maxresdefault.jpg";
       ws.send(currentImageURL);
+
+      // start speech api
       startSpeechRecording();
+
+      // update image every 2 seconds
       currentInterval = setInterval(() => {
+        // if current word hasn't changed, don't send another request to image search api
         if (currentWord != nextWord) {
           currentWord = nextWord;
           findImage(currentWord);
         }
         try {
           if (ws.readyState != WebSocket.CLOSED) {
+            // send image url to client
             ws.send(currentImageURL);
           }
         } catch (e) {
@@ -26,7 +47,7 @@ wss.on("connection", function connection(ws) {
         }
 
         console.log(currentImageURL);
-      }, 3000);
+      }, 2000);
     }
 
     if (message === "stopSpeechRecognition") {
@@ -46,22 +67,10 @@ wss.on("connection", function connection(ws) {
   });
 });
 
-// for making external REST api calls for custom search
-const request = require("request");
-const rp = require("request-promise");
-
-// ----- Express Stuff -----
-const express = require("express");
-const app = express();
-app.use(express.static("client"));
-
-app.listen(3000);
-
 // ----- Google Image Search Stuff -----
-let currentImageURL =
-  "https://upload.wikimedia.org/wikipedia/commons/1/1e/A_blank_black_picture.jpg";
-
 const findImage = query => {
+  // format request and send to custom search API
+  // limited to 10,000/day (FYI that's ~1 every 7 sec over 24hr period)
   const searchOptions = {
     uri: "https://www.googleapis.com/customsearch/v1",
     qs: {
@@ -80,8 +89,19 @@ const findImage = query => {
 
   rp(searchOptions).then(function(results) {
     if (results && results.items) {
-      console.log(results.items);
-      currentImageURL = results.items[0].link;
+      // Check all 10 link items if jpeg, jpg, png, gif.
+      let imageURLs = results.items
+        .map(item => item.link)
+        .filter(
+          url =>
+            url.includes(".gif") ||
+            url.includes(".jpeg") ||
+            url.includes(".jpg") ||
+            url.inclues(".png")
+        );
+
+      // Set currentImageURL randomly from that filtered array
+      currentImageURL = imageURLs[Math.floor(Math.random() * imageURLs.length)];
     }
   });
 };
@@ -107,66 +127,28 @@ const speechRequest = {
   interimResults: true // If you want interim results, set this to true
 };
 
-const wordsToAvoid = [
-  "",
-  "for",
-  "can",
-  "could",
-  "would",
-  "will",
-  "wants",
-  "want",
-  "it",
-  "he",
-  "she",
-  "is",
-  "was",
-  "did",
-  "do",
-  "does",
-  "done",
-  "has",
-  "have",
-  "the",
-  "a",
-  "an",
-  "of",
-  "on",
-  "to",
-  "and",
-  "however",
-  "when",
-  "whenever",
-  "at",
-  "with",
-  "up",
-  "down",
-  "left",
-  "right",
-  "are",
-  "you",
-  "i"
-];
-
 let currentWord = "";
 let nextWord = "";
 let currentInterval;
 
 const processText = data => {
+  // set speech api response as sentence
   const sentence =
     data.results[0] && data.results[0].alternatives[0]
       ? data.results[0].alternatives[0].transcript
       : "";
+
+  // convert sentence to array of words & filter out wordsToAvoid
   const words = sentence
     .split(" ")
     .filter(word => !wordsToAvoid.includes(word.toLowerCase()));
-  nextWord =
-    words.length > 0
-      ? words[Math.floor(Math.random() * words.length)]
-      : "say something";
+
+  // Set nextWord as last word in array
+  nextWord = words.length > 0 ? words[words.length - 1] : "say something";
 };
 
 const stopSpeechRecording = () => {
+  // Stop recording and don't send to the Speech API
   client.streamingRecognize(speechRequest).end();
   record.stop();
   console.log("Stopped recording");
