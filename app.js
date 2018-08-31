@@ -90,16 +90,10 @@ const findImage = query => {
   rp(searchOptions).then(function(results) {
     if (results && results.items) {
       // Check all 10 link items if jpeg, jpg, png, gif.
-      let imageURLs = results.items
+      const imageURLs = results.items
         .map(item => item.link)
-        .filter(
-          url =>
-            url.includes(".gif") ||
-            url.includes(".jpeg") ||
-            url.includes(".jpg") ||
-            url.inclues(".png")
-        );
-
+        .filter(url => validImageFormats.some(format => url.includes(format)));
+      console.log(imageURLs.length);
       // Set currentImageURL randomly from that filtered array
       currentImageURL = imageURLs[Math.floor(Math.random() * imageURLs.length)];
     }
