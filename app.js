@@ -45,8 +45,6 @@ wss.on("connection", function connection(ws) {
         } catch (e) {
           console.log(e);
         }
-
-        console.log(currentImageURL);
       }, 2000);
     }
 
@@ -94,7 +92,6 @@ const findImage = query => {
       const imageURLs = results.items
         .map(item => item.link)
         .filter(url => validImageFormats.some(format => url.includes(format)));
-      console.log(imageURLs.length);
       // Set currentImageURL randomly from that filtered array
       currentImageURL = imageURLs[Math.floor(Math.random() * imageURLs.length)];
     }
