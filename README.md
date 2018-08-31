@@ -1,4 +1,4 @@
-# Thijs-Vision
+# Speech to Image Necklace
 
 See images that maybe (?probably not?) correlate with what you are saying as you are saying it.
 
@@ -35,19 +35,33 @@ This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, microphone, hyperpix
 
 3. git clone or copy over ssh to pi zero using scp:
 
-   `git clone https://github.com/traumverloren/thijs-vision.git`
+   `git clone https://github.com/traumverloren/speech-to-image-necklace.git`
 
    OR
 
-   `scp -r thijs-vision pi@YOUR_PI_NAME_HERE.local:projects`
+   `scp -r speech-to-image-necklace pi@YOUR_PI_NAME_HERE.local:projects`
 
 4. install npm dependencies & SoX:
 
    ```
-   cd thijs-vision
+   cd speech-to-image-necklace
    sudo apt-get install sox libsox-fmt-all
    npm install
    ```
+
+5. set up secret key files:
+
+- for use of the [google speech api](https://cloud.google.com/speech-to-text/docs/quickstart-client-libraries), you'll need to create an account and include your own keys json file and name it `thijs-vision.json`
+
+- for use of the [custom search api](https://developers.google.com/custom-search/json-api/v1/overview), you'll need to set that up as well and include your API_KEY in the `keys.js` file.
+
+- move both files over from your local machine to rpi:
+
+  ```
+    scp -r keys.js pi@YOUR_PI_NAME_HERE.local:projects/speech-to-image-necklace
+
+    scp -r thijs-vision.json pi@YOUR_PI_NAME_HERE.local:projects/speech-to-image-necklace
+  ```
 
 ## Running:
 
