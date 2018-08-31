@@ -78,6 +78,7 @@ const findImage = query => {
       cx: keys.SEARCH_ID,
       q: query,
       num: 10,
+      imgSize: "large",
       safe: "active",
       searchType: "image" // -> uri + '?key=xxxxx%20xxxxx&cx=123&imgSize=large&num=1&safe=active&searchType=image'
     },
