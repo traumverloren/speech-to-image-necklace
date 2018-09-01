@@ -136,7 +136,15 @@ const processText = data => {
     .filter(word => !wordsToAvoid.includes(word.toLowerCase()));
 
   // Set nextWord as last word in array
-  nextWord = words.length > 0 ? words[words.length - 1] : "say something";
+  if (words.length > 1) {
+    nextWord = `${words[words.length - 2]} ${words[words.length - 1]}`;
+  } else if (words.length > 0) {
+    nextWord = words[words.length - 1];
+  } else {
+    nextWord = "say something";
+  }
+
+  console.log(nextWord);
 };
 
 const stopSpeechRecording = () => {
