@@ -2,6 +2,8 @@
 
 See images that maybe (?probably not?) correlate with what you are saying as you are saying it.
 
+![demo video](demo.gif)
+
 This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, microphone, hyperpixel4 display, google cloud speech recognition API, & google custom search API. Written in Javascript!
 
 ## Setup:
