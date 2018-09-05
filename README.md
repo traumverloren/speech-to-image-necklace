@@ -4,7 +4,7 @@ See images that maybe (?probably not?) correlate with what you are saying as you
 
 ![demo video](demo.gif)
 
-This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, microphone, hyperpixel4 display, google cloud speech recognition API, & google custom search API. Written in Javascript!
+This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, usb microphone, hyperpixel4 touchscreen display, google cloud speech recognition API, & google custom search API. Written in Javascript!
 
 ## Setup:
 
