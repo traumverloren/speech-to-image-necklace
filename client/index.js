@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   let speechActivated = false;
 
   const ws = new WebSocket("ws://localhost:40510");
-  // event emmited when connected
+  // event emitted when connected
   ws.onopen = function() {
     console.log("websocket is connected ...");
     // sending a send event to websocket server
@@ -17,21 +17,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
   };
 
   touchscreen.addEventListener("click", () => {
-    {
-      !speechActivated ? activateSpeech() : deactivateSpeech();
-    }
+    console.log(speechActivated)
     speechActivated = !speechActivated;
+    {
+      speechActivated ? activateSpeech() : deactivateSpeech();
+    }
   });
   const activateSpeech = () => {
     console.log("Speech Recognition ON");
     startSpeechRecognition();
-    startUpdateImage();
   };
 
   const deactivateSpeech = () => {
     console.log("zzZzZZZz");
     stopSpeechRecognition();
-    stopUpdateImage();
   };
 
   const stopSpeechRecognition = () => {
