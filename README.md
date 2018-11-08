@@ -64,13 +64,15 @@ This project uses a ~~Raspberry Pi Zero W~~ Raspberry Pi 3, usb microphone, hype
   scp -r thijs-vision-keys.json pi@YOUR_PI_NAME_HERE.local:projects/speech-to-image-necklace
   ```
 
-  6. Install Hyperpixel4
+6. Install Hyperpixel4
 
   ```
   git clone https://github.com/pimoroni/hyperpixel4
   cd hyperpixel4
   sudo ./install.sh
   ```
+
+7. Turn on USB Mic: (skip to mid-Step 4) [http://wiki.sunfounder.cc/index.php?title=To_use_USB_mini_microphone_on_Raspbian](http://wiki.sunfounder.cc/index.php?title=To_use_USB_mini_microphone_on_Raspbian)
 
 ## Running:
 
